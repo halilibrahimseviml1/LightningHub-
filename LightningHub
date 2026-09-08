@@ -230,11 +230,13 @@ FeedbackTab.Position = UDim2.new(0, 65, 0, 65)
 FeedbackTab.BackgroundTransparency = 1
 FeedbackTab.Visible = false
 
-local SettingsTab = Instance.new("Frame", MainFrame)
+local SettingsTab = Instance.new("ScrollingFrame", MainFrame)
 SettingsTab.Size = UDim2.new(1, -70, 1, -75)
 SettingsTab.Position = UDim2.new(0, 65, 0, 65)
 SettingsTab.BackgroundTransparency = 1
+SettingsTab.BorderSizePixel = 0
 SettingsTab.Visible = false
+SettingsTab.CanvasSize = UDim2.new(0, 0, 1.5, 0)
 
 -- [ MENU BUTTONS FUNCTION ] --
 local function createMenuBtn(text, pos, parent)
@@ -457,6 +459,7 @@ AdminLabel.TextSize = 12
 AdminLabel.BackgroundTransparency = 1
 AdminLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+-- [ INFINITE YIELD BUTTON ] --
 local IYBtn = createBtn("Infinite Yield", UDim2.new(0, 10, 0, 120), 200, SettingsTab)
 IYBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
 IYBtn.MouseButton1Click:Connect(function()
@@ -510,6 +513,39 @@ print("SOMNANGKH122's Script Hub loaded successfully!")
         local func = loadstring(iyCode)
         if func then func() end
     end)
+end)
+
+-- [ NEW ADMIN SCRIPT SECTION (ENGLISH) ] --
+local NewAdminLabel = Instance.new("TextLabel", SettingsTab)
+NewAdminLabel.Text = "Here is my new admin script:"
+NewAdminLabel.Position = UDim2.new(0, 10, 0, 165)
+NewAdminLabel.Size = UDim2.new(1, -20, 0, 15)
+NewAdminLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+NewAdminLabel.Font = Enum.Font.GothamBold
+NewAdminLabel.TextSize = 12
+NewAdminLabel.BackgroundTransparency = 1
+NewAdminLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local NewAdminBox = Instance.new("TextBox", SettingsTab)
+NewAdminBox.Size = UDim2.new(0, 155, 0, 35)
+NewAdminBox.Position = UDim2.new(0, 10, 0, 185)
+NewAdminBox.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+NewAdminBox.TextColor3 = Color3.new(1,1,1)
+NewAdminBox.Text = "https://scriptblox.com/script/Universal-Script-Universal-Admin-Script-V3-(No-key-All-Commands)-227208"
+NewAdminBox.TextSize = 11
+NewAdminBox.Font = Enum.Font.Gotham
+NewAdminBox.ClearTextOnFocus = false
+NewAdminBox.TextEditable = false
+Instance.new("UICorner", NewAdminBox).CornerRadius = UDim.new(0, 8)
+
+local CopyNewAdminBtn = createBtn("Copy", UDim2.new(0, 170, 0, 185), 50, SettingsTab)
+CopyNewAdminBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+CopyNewAdminBtn.MouseButton1Click:Connect(function()
+    local link = "https://scriptblox.com/script/Universal-Script-Universal-Admin-Script-V3-(No-key-All-Commands)-227208"
+    if setclipboard then
+        setclipboard(link)
+    end
+    showFeedbackNotify("SUCCESS", "Minnetarım⚡️")
 end)
 
 -- [[ 🛠️ 3. RESIZE SYSTEM ]] --

@@ -1,0 +1,696 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+-- [[ LIGHTNING HUB V10 - ALL-IN-ONE EDITION ]] --
+
+local player = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local runService = game:GetService("RunService")
+local coreGui = game:GetService("CoreGui")
+local userInput = game:GetService("UserInputService")
+local market = game:GetService("MarketplaceService")
+local httpService = game:GetService("HttpService")
+
+-- Clean up old version
+if coreGui:FindFirstChild("LightningHub") then coreGui.LightningHub:Destroy() end
+if coreGui:FindFirstChild("LightningKey") then coreGui.LightningKey:Destroy() end
+
+local KeyGui = Instance.new("ScreenGui")
+KeyGui.Name = "LightningKey"
+KeyGui.Parent = coreGui
+KeyGui.ResetOnSpawn = false
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LightningHub"
+ScreenGui.Parent = coreGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false -- Disabled until key is entered
+
+local flying, noclip, espActive = false, false, false
+local flySpeed = 70 
+local espColor = Color3.fromRGB(255, 255, 0)
+local colors = {Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(150, 0, 255)}
+local colorIdx = 1
+local currentThemeColor = Color3.fromRGB(255, 255, 0)
+
+-- [[ 🔑 0. KEY / LINK SYSTEM ]] --
+local LinkToCopy = "https://www.instagram.com/direct/t/17842033139761761"
+
+local KeyFrame = Instance.new("Frame", KeyGui)
+KeyFrame.Size = UDim2.new(0, 300, 0, 150)
+KeyFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
+
+local KeyTitle = Instance.new("TextLabel", KeyFrame)
+KeyTitle.Size = UDim2.new(1, 0, 0, 40)
+KeyTitle.Text = "⚡ LIGHTNING HUB LOGIN"
+KeyTitle.TextColor3 = currentThemeColor
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.TextSize = 18
+KeyTitle.BackgroundTransparency = 1
+
+local CopyBtn = Instance.new("TextButton", KeyFrame)
+CopyBtn.Size = UDim2.new(0, 260, 0, 35)
+CopyBtn.Position = UDim2.new(0, 20, 0, 50)
+CopyBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+CopyBtn.Text = "Copy Link"
+CopyBtn.TextColor3 = Color3.new(1,1,1)
+CopyBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", CopyBtn).CornerRadius = UDim.new(0, 8)
+
+local EnterBtn = Instance.new("TextButton", KeyFrame)
+EnterBtn.Size = UDim2.new(0, 260, 0, 35)
+EnterBtn.Position = UDim2.new(0, 20, 0, 95)
+EnterBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+EnterBtn.Text = "Login (Copy First)"
+EnterBtn.TextColor3 = Color3.fromRGB(100, 100, 100)
+EnterBtn.Font = Enum.Font.GothamBold
+EnterBtn.AutoButtonColor = false
+Instance.new("UICorner", EnterBtn).CornerRadius = UDim.new(0, 8)
+
+local linkCopied = false
+
+CopyBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(LinkToCopy)
+        CopyBtn.Text = "Link Copied!"
+        CopyBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        EnterBtn.BackgroundColor3 = currentThemeColor
+        EnterBtn.TextColor3 = Color3.new(0,0,0)
+        EnterBtn.Text = "Login"
+        EnterBtn.AutoButtonColor = true
+        linkCopied = true
+    else
+        CopyBtn.Text = "Executor not supported!"
+    end
+end)
+
+EnterBtn.MouseButton1Click:Connect(function()
+    if linkCopied then
+        KeyGui:Destroy()
+        ScreenGui.Enabled = true
+    end
+end)
+
+-- [[ 🔔 1. NOTIFICATION SYSTEM ]] --
+local function showFeedbackNotify(title, message)
+    local NotifyFrame = Instance.new("Frame")
+    local NotifyCorner = Instance.new("UICorner")
+    local NotifyTitle = Instance.new("TextLabel")
+    local NotifyText = Instance.new("TextLabel")
+    local NotifyBar = Instance.new("Frame")
+    local UIStroke = Instance.new("UIStroke", NotifyFrame)
+
+    NotifyFrame.Size = UDim2.new(0, 260, 0, 85)
+    NotifyFrame.Position = UDim2.new(1, 30, 1, -100)
+    NotifyFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    NotifyFrame.BorderSizePixel = 0
+    NotifyFrame.Parent = ScreenGui
+
+    NotifyCorner.CornerRadius = UDim.new(0, 12)
+    UIStroke.Color = currentThemeColor
+    UIStroke.Thickness = 2
+
+    NotifyTitle.Size = UDim2.new(1, -20, 0, 30)
+    NotifyTitle.Position = UDim2.new(0, 10, 0, 8)
+    NotifyTitle.Text = title
+    NotifyTitle.TextColor3 = currentThemeColor
+    NotifyTitle.Font = Enum.Font.GothamBold
+    NotifyTitle.TextSize = 16
+    NotifyTitle.TextXAlignment = Enum.TextXAlignment.Left
+    NotifyTitle.BackgroundTransparency = 1
+    NotifyTitle.Parent = NotifyFrame
+
+    NotifyText.Size = UDim2.new(1, -20, 0, 40)
+    NotifyText.Position = UDim2.new(0, 10, 0, 32)
+    NotifyText.Text = message
+    NotifyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    NotifyText.Font = Enum.Font.Gotham
+    NotifyText.TextSize = 13
+    NotifyText.TextWrapped = true
+    NotifyText.TextXAlignment = Enum.TextXAlignment.Left
+    NotifyText.BackgroundTransparency = 1
+    NotifyText.Parent = NotifyFrame
+
+    NotifyBar.Size = UDim2.new(1, 0, 0, 4)
+    NotifyBar.Position = UDim2.new(0, 0, 1, -4)
+    NotifyBar.BackgroundColor3 = currentThemeColor
+    NotifyBar.BorderSizePixel = 0
+    NotifyBar.Parent = NotifyFrame
+
+    NotifyFrame:TweenPosition(UDim2.new(1, -280, 1, -100), "Out", "Quint", 0.6, true)
+
+    task.spawn(function()
+        NotifyBar:TweenSize(UDim2.new(0, 0, 0, 4), "In", "Linear", 4)
+        task.wait(4)
+        NotifyFrame:TweenPosition(UDim2.new(1, 30, 1, -100), "In", "Quint", 0.6, true)
+        task.wait(0.6)
+        NotifyFrame:Destroy()
+    end)
+end
+
+-- [[ 🏠 2. MAIN PANEL AND UI ]] --
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 420)
+MainFrame.Position = UDim2.new(0.5, -200, 0.3, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
+
+-- [ FOOTER TEXT ] --
+local PreparedText = Instance.new("TextLabel", MainFrame)
+PreparedText.Size = UDim2.new(1, 0, 0, 20)
+PreparedText.Position = UDim2.new(0, 0, 1, -20)
+PreparedText.Text = "Prepared by halilibrahimseviml1"
+PreparedText.TextColor3 = Color3.fromRGB(100, 100, 100)
+PreparedText.Font = Enum.Font.Gotham
+PreparedText.TextSize = 10
+PreparedText.BackgroundTransparency = 1
+PreparedText.ZIndex = 0
+
+-- [ TITLE AND LIGHTNING ] --
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 55)
+Title.Text = "⚡ LIGHTNING HUB V10"
+Title.TextColor3 = currentThemeColor
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 15)
+
+-- [ SMALL OPEN BUTTON ] --
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 15, 0.5, -25)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+ToggleBtn.Text = "⚡"
+ToggleBtn.TextColor3 = currentThemeColor
+ToggleBtn.TextSize = 25
+ToggleBtn.Visible = false
+ToggleBtn.Active = true
+ToggleBtn.Draggable = true
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+local ToggleStroke = Instance.new("UIStroke", ToggleBtn)
+ToggleStroke.Color = currentThemeColor
+ToggleStroke.Thickness = 2
+
+-- [ LEFT MENU ] --
+local SideBar = Instance.new("Frame", MainFrame)
+SideBar.Size = UDim2.new(0, 60, 1, -65)
+SideBar.Position = UDim2.new(0, 0, 0, 55)
+SideBar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+Instance.new("UICorner", SideBar).CornerRadius = UDim.new(0, 10)
+
+-- [ TAB CONTAINERS ] --
+local MainTab = Instance.new("ScrollingFrame", MainFrame)
+MainTab.Size = UDim2.new(1, -70, 1, -75)
+MainTab.Position = UDim2.new(0, 65, 0, 65)
+MainTab.BackgroundTransparency = 1
+MainTab.BorderSizePixel = 0
+MainTab.ScrollBarThickness = 4
+MainTab.CanvasSize = UDim2.new(0, 0, 1.6, 0)
+
+local CheatsTab = Instance.new("ScrollingFrame", MainFrame)
+CheatsTab.Size = UDim2.new(1, -70, 1, -75)
+CheatsTab.Position = UDim2.new(0, 65, 0, 65)
+CheatsTab.BackgroundTransparency = 1
+CheatsTab.BorderSizePixel = 0
+CheatsTab.Visible = false
+
+local FeedbackTab = Instance.new("Frame", MainFrame)
+FeedbackTab.Size = UDim2.new(1, -70, 1, -75)
+FeedbackTab.Position = UDim2.new(0, 65, 0, 65)
+FeedbackTab.BackgroundTransparency = 1
+FeedbackTab.Visible = false
+
+local SettingsTab = Instance.new("Frame", MainFrame)
+SettingsTab.Size = UDim2.new(1, -70, 1, -75)
+SettingsTab.Position = UDim2.new(0, 65, 0, 65)
+SettingsTab.BackgroundTransparency = 1
+SettingsTab.Visible = false
+
+-- [ MENU BUTTONS FUNCTION ] --
+local function createMenuBtn(text, pos, parent)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0, 40, 0, 40)
+    btn.Position = pos
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.TextSize = 20
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    return btn
+end
+
+local MainBtn = createMenuBtn("🏠", UDim2.new(0, 10, 0, 10), SideBar)
+local CheatsBtn = createMenuBtn("⚡", UDim2.new(0, 10, 0, 60), SideBar)
+local FeedbackBtn = createMenuBtn("📩", UDim2.new(0, 10, 0, 110), SideBar)
+local SettingsBtn = createMenuBtn("⚙️", UDim2.new(0, 10, 0, 160), SideBar)
+
+local function switchTab(tab)
+    MainTab.Visible = (tab == MainTab)
+    CheatsTab.Visible = (tab == CheatsTab)
+    FeedbackTab.Visible = (tab == FeedbackTab)
+    SettingsTab.Visible = (tab == SettingsTab)
+end
+
+MainBtn.MouseButton1Click:Connect(function() switchTab(MainTab) end)
+CheatsBtn.MouseButton1Click:Connect(function() switchTab(CheatsTab) end)
+FeedbackBtn.MouseButton1Click:Connect(function() switchTab(FeedbackTab) end)
+SettingsBtn.MouseButton1Click:Connect(function() switchTab(SettingsTab) end)
+
+-- [ BUTTON TEMPLATE ] --
+local function createBtn(text, pos, sizeX, parent)
+    local btn = Instance.new("TextButton", parent)
+    btn.Text = text
+    btn.Size = UDim2.new(0, sizeX or 200, 0, 35)
+    btn.Position = pos
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    return btn
+end
+
+-- [ 🏠 MAIN TAB CONTENT ] --
+local pfp = Instance.new("ImageLabel", MainTab)
+pfp.Size = UDim2.new(0, 60, 0, 60)
+pfp.Position = UDim2.new(0, 10, 0, 10)
+pfp.Image = "rbxthumb://type=AvatarHeadShot&id="..player.UserId.."&w=150&h=150"
+Instance.new("UICorner", pfp).CornerRadius = UDim.new(1, 0)
+
+local userName = Instance.new("TextLabel", MainTab)
+userName.Text = "User: " .. player.DisplayName
+userName.Position = UDim2.new(0, 80, 0, 15)
+userName.Size = UDim2.new(0, 200, 0, 20)
+userName.TextColor3 = Color3.new(1,1,1)
+userName.BackgroundTransparency = 1
+userName.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Safe Game Name Fetching (Error Prevention)
+local gameName = "Unknown Game"
+local success, info = pcall(function()
+    return market:GetProductInfo(game.PlaceId).Name
+end)
+if success and info then
+    gameName = info
+end
+
+local gameInfo = Instance.new("TextLabel", MainTab)
+gameInfo.Text = "Game: " .. gameName
+gameInfo.Position = UDim2.new(0, 10, 0, 80)
+gameInfo.Size = UDim2.new(0, 300, 0, 20)
+gameInfo.TextColor3 = Color3.fromRGB(200, 200, 200)
+gameInfo.TextXAlignment = Enum.TextXAlignment.Left
+gameInfo.BackgroundTransparency = 1
+
+local UnviewBtn = createBtn("Reset View", UDim2.new(0, 10, 0, 110), 150, MainTab)
+UnviewBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+
+local PlayerList = Instance.new("ScrollingFrame", MainTab)
+PlayerList.Size = UDim2.new(1, -20, 0, 150)
+PlayerList.Position = UDim2.new(0, 10, 0, 160)
+PlayerList.BackgroundTransparency = 0.9
+PlayerList.CanvasSize = UDim2.new(0,0,5,0)
+local listLayout = Instance.new("UIListLayout", PlayerList)
+listLayout.Padding = UDim.new(0, 5)
+
+-- [ ⚡ CHEATS TAB CONTENT ] --
+local FlyBtn = createBtn("FLY: OFF", UDim2.new(0, 10, 0, 10), 200, CheatsTab)
+local NoclipBtn = createBtn("NOCLIP: OFF", UDim2.new(0, 10, 0, 55), 200, CheatsTab)
+local EspBtn = createBtn("ESP: OFF", UDim2.new(0, 10, 0, 100), 150, CheatsTab)
+local ColorBtn = createBtn("", UDim2.new(0, 170, 0, 100), 40, CheatsTab)
+ColorBtn.BackgroundColor3 = espColor
+
+local speedActive = false
+local SpeedBtn = createBtn("SPEED: OFF", UDim2.new(0, 10, 0, 145), 140, CheatsTab)
+local SpeedInput = Instance.new("TextBox", CheatsTab)
+SpeedInput.Size = UDim2.new(0, 50, 0, 35)
+SpeedInput.Position = UDim2.new(0, 160, 0, 145)
+SpeedInput.Text = "50"
+SpeedInput.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+SpeedInput.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", SpeedInput)
+
+local jumpActive = false
+local JumpBtn = createBtn("JUMP: OFF", UDim2.new(0, 10, 0, 190), 140, CheatsTab)
+local JumpInput = Instance.new("TextBox", CheatsTab)
+JumpInput.Size = UDim2.new(0, 50, 0, 35)
+JumpInput.Position = UDim2.new(0, 160, 0, 190)
+JumpInput.Text = "50"
+JumpInput.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+JumpInput.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", JumpInput)
+
+-- [[ 📩 FEEDBACK TAB CONTENT ]] --
+local creatorPfp = Instance.new("ImageLabel", FeedbackTab)
+creatorPfp.Size = UDim2.new(0, 80, 0, 80)
+creatorPfp.Position = UDim2.new(0.5, -40, 0, 10)
+creatorPfp.Image = "rbxthumb://type=AvatarHeadShot&id=2221581783&w=150&h=150"
+Instance.new("UICorner", creatorPfp).CornerRadius = UDim.new(1, 0)
+
+local creatorName = Instance.new("TextLabel", FeedbackTab)
+creatorName.Text = "halilibrahimseviml1"
+creatorName.Position = UDim2.new(0, 0, 0, 95)
+creatorName.Size = UDim2.new(1, 0, 0, 20)
+creatorName.TextColor3 = currentThemeColor
+creatorName.Font = Enum.Font.GothamBold
+creatorName.TextSize = 14
+creatorName.BackgroundTransparency = 1
+
+-- Feedback message input area (TextBox)
+local FeedbackInput = Instance.new("TextBox", FeedbackTab)
+FeedbackInput.Size = UDim2.new(1, -20, 0, 70)
+FeedbackInput.Position = UDim2.new(0, 10, 0, 120)
+FeedbackInput.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+FeedbackInput.TextColor3 = Color3.new(1,1,1)
+FeedbackInput.PlaceholderText = "Write your message here..."
+FeedbackInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+FeedbackInput.Text = ""
+FeedbackInput.TextWrapped = true
+FeedbackInput.TextXAlignment = Enum.TextXAlignment.Left
+FeedbackInput.TextYAlignment = Enum.TextYAlignment.Top
+FeedbackInput.Font = Enum.Font.Gotham
+FeedbackInput.TextSize = 13
+Instance.new("UICorner", FeedbackInput).CornerRadius = UDim.new(0, 8)
+
+-- Send Button (Discord Webhook Integration)
+local SendFeedbackBtn = createBtn("Send Feedback", UDim2.new(0, 10, 0, 200), 310, FeedbackTab)
+SendFeedbackBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+
+SendFeedbackBtn.MouseButton1Click:Connect(function()
+    local messageText = FeedbackInput.Text
+    if messageText == "" then
+        showFeedbackNotify("ERROR", "Please do not send an empty message!")
+        return
+    end
+
+    local requestFunc = syn and syn.request or http and http.request or http_request or request
+    if requestFunc then
+        local successReq = pcall(function()
+            requestFunc({
+                Url = "https://discord.com/api/webhooks/1538175608557670421/fX5i4NcLNL-Ab9iTrb7AQW43-HyqA_C2XY0g_fVT1SdSj0QeRAxlES_fzFy-4Xczcgpc",
+                Method = "POST",
+                Headers = { ["Content-Type"] = "application/json" },
+                Body = httpService:JSONEncode({
+                    content = "📩 **New Feedback!**\nSender: " .. player.Name .. " (" .. player.UserId .. ")\nGame: " .. gameName .. "\nMessage: " .. messageText
+                })
+            })
+        end)
+        if successReq then
+            showFeedbackNotify("SUCCESS", "Your message has been successfully delivered!")
+            FeedbackInput.Text = ""
+        else
+            showFeedbackNotify("INFO", "An error occurred while sending your feedback!")
+        end
+    else
+        showFeedbackNotify("INFO", "Executor does not support this request!")
+    end
+end)
+
+-- [ ⚙️ SETTINGS TAB CONTENT ] --
+local SettingsTitle = Instance.new("TextLabel", SettingsTab)
+SettingsTitle.Text = "Change Panel Color"
+SettingsTitle.Position = UDim2.new(0, 10, 0, 10)
+SettingsTitle.Size = UDim2.new(1, -20, 0, 20)
+SettingsTitle.TextColor3 = Color3.new(1,1,1)
+SettingsTitle.Font = Enum.Font.GothamBold
+SettingsTitle.BackgroundTransparency = 1
+SettingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local function createColorThemeBtn(color, pos)
+    local btn = createBtn("", pos, 40, SettingsTab)
+    btn.BackgroundColor3 = color
+    btn.MouseButton1Click:Connect(function()
+        currentThemeColor = color
+        Title.TextColor3 = color
+        ToggleBtn.TextColor3 = color
+        ToggleStroke.Color = color
+        creatorName.TextColor3 = color
+        if flying then FlyBtn.BackgroundColor3 = color end
+        if noclip then NoclipBtn.BackgroundColor3 = color end
+        if speedActive then SpeedBtn.BackgroundColor3 = color end
+        if jumpActive then JumpBtn.BackgroundColor3 = color end
+    end)
+    return btn
+end
+
+createColorThemeBtn(Color3.fromRGB(255, 255, 0), UDim2.new(0, 10, 0, 40))   -- Yellow
+createColorThemeBtn(Color3.fromRGB(255, 50, 50), UDim2.new(0, 60, 0, 40))    -- Red
+createColorThemeBtn(Color3.fromRGB(50, 150, 255), UDim2.new(0, 110, 0, 40))  -- Blue
+createColorThemeBtn(Color3.fromRGB(150, 50, 255), UDim2.new(0, 160, 0, 40))  -- Purple
+
+local AdminLabel = Instance.new("TextLabel", SettingsTab)
+AdminLabel.Text = "Admin script"
+AdminLabel.Position = UDim2.new(0, 10, 0, 100)
+AdminLabel.Size = UDim2.new(1, -20, 0, 15)
+AdminLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+AdminLabel.Font = Enum.Font.Gotham
+AdminLabel.TextSize = 12
+AdminLabel.BackgroundTransparency = 1
+AdminLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local IYBtn = createBtn("Infinite Yield", UDim2.new(0, 10, 0, 120), 200, SettingsTab)
+IYBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+IYBtn.MouseButton1Click:Connect(function()
+    showFeedbackNotify("SCRIPT EXECUTED", "SOMNANGKH122's Script Hub is loading...")
+    task.spawn(function()
+        local iyCode = [=[
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+   Name = "SOMNANGKH122's Script Hub",
+   LoadingTitle = "Loading Infinite Yield...",
+   ConfigurationSaving = { Enabled = true, FolderName = "SomnangScriptHub", FileName = "config.json" },
+   Discord = { Enabled = false, Invite = "", RememberJoins = true },
+   KeySystem = false
+})
+local AdminTab = Window:CreateTab("Infinite Yield Admin", 4483362458)
+local InfiniteYield = loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+
+Rayfield:Notify({
+   Title = "Script Loaded",
+   Content = "Infinite Yield has been loaded! Use commands in chat or check the UI.",
+   Duration = 3,
+   Image = 4483362458
+})
+
+local function createButton(name, callback)
+   AdminTab:CreateButton({ Name = name, Callback = callback })
+end
+
+createButton("Fly (Toggle)", function() InfiniteYield.createCmd("fly") end)
+createButton("Noclip (Toggle)", function() InfiniteYield.createCmd("noclip") end)
+createButton("Speed 50", function() InfiniteYield.createCmd("speed 50") end)
+createButton("Jump Power 100", function() InfiniteYield.createCmd("jump 100") end)
+createButton("Teleport to Spawn", function() InfiniteYield.createCmd("rejoin") end)
+createButton("Unsit All", function() InfiniteYield.createCmd("unsit") end)
+
+local UtilityTab = Window:CreateTab("Utility", 7733716402)
+UtilityTab:CreateButton({ Name = "Dex Explorer", Callback = function() InfiniteYield.createCmd("dex") end })
+UtilityTab:CreateButton({ Name = "Rejoin Server", Callback = function() game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer) end })
+UtilityTab:CreateToggle({ Name = "Auto Reconnect", CurrentValue = false, Flag = "AutoReconnect", Callback = function(Value) print("Auto Reconnect:", Value) end })
+
+local CreditsTab = Window:CreateTab("Credits")
+CreditsTab:CreateLabel("Script Hub by SOMNANGKH122")
+CreditsTab:CreateLabel("Powered by Infinite Yield")
+CreditsTab:CreateLabel("UI Library: Rayfield")
+CreditsTab:CreateButton({ Name = "Join SOMNANGKH122's Discord", Callback = function() Rayfield:Notify({Title="Discord", Content="Coming soon!", Duration=2}) end })
+
+getgenv().IY_LOADED = true
+InfiniteYield:Init()
+print("SOMNANGKH122's Script Hub loaded successfully!")
+]=]
+        local func = loadstring(iyCode)
+        if func then func() end
+    end)
+end)
+
+-- [[ 🛠️ 3. RESIZE SYSTEM ]] --
+local ResizeHandle = Instance.new("TextButton")
+ResizeHandle.Name = "ResizeHandle"
+ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
+ResizeHandle.Position = UDim2.new(1, -20, 1, -20)
+ResizeHandle.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+ResizeHandle.Text = "◢"
+ResizeHandle.TextColor3 = Color3.fromRGB(0, 0, 0)
+ResizeHandle.TextSize = 12
+ResizeHandle.Font = Enum.Font.GothamBold
+ResizeHandle.Parent = MainFrame
+Instance.new("UICorner", ResizeHandle).CornerRadius = UDim.new(0, 4)
+
+local resizing = false
+local dragStart
+local startSize
+
+ResizeHandle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        resizing = true
+        dragStart = input.Position
+        startSize = MainFrame.Size
+    end
+end)
+
+userInput.InputChanged:Connect(function(input)
+    if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        local newSizeX = math.max(300, startSize.X.Offset + delta.X)
+        local newSizeY = math.max(250, startSize.Y.Offset + delta.Y)
+        MainFrame.Size = UDim2.new(0, newSizeX, 0, newSizeY)
+    end
+end)
+
+userInput.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        resizing = false
+    end
+end)
+
+-- [[ 🧠 4. CHEAT LOGIC AND CONTROLS ]] --
+
+local function toggleVisual(btn, state, text)
+    btn.Text = text .. (state and ": ON" or ": OFF")
+    btn.BackgroundColor3 = state and currentThemeColor or Color3.fromRGB(35, 35, 40)
+    btn.TextColor3 = state and Color3.new(0,0,0) or Color3.new(1,1,1)
+end
+
+FlyBtn.MouseButton1Click:Connect(function()
+    flying = not flying
+    toggleVisual(FlyBtn, flying, "FLY")
+    if flying then
+        task.spawn(function()
+            local char = player.Character or player.CharacterAdded:Wait()
+            local root = char:WaitForChild("HumanoidRootPart")
+            local hum = char:WaitForChild("Humanoid")
+            local bv = Instance.new("BodyVelocity", root)
+            bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+            local bg = Instance.new("BodyGyro", root)
+            bg.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+            bg.P = 15000
+            
+            while flying and char and root and hum.Parent do
+                runService.Heartbeat:Wait()
+                local moveDir = hum.MoveDirection
+                
+                if moveDir.Magnitude > 0 then
+                    local localMove = camera.CFrame:VectorToObjectSpace(moveDir)
+                    bv.Velocity = (camera.CFrame.LookVector * -localMove.Z + camera.CFrame.RightVector * localMove.X) * flySpeed
+                else
+                    bv.Velocity = Vector3.new(0, 0, 0)
+                end
+                
+                bg.CFrame = camera.CFrame
+                hum:ChangeState(Enum.HumanoidStateType.Physics)
+            end
+            bv:Destroy() bg:Destroy()
+            hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+        end)
+    end
+end)
+ 
+NoclipBtn.MouseButton1Click:Connect(function() 
+    noclip = not noclip 
+    toggleVisual(NoclipBtn, noclip, "NOCLIP")
+end)
+
+runService.Stepped:Connect(function()
+    if noclip and player.Character then
+        for _, v in pairs(player.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+ 
+local function applyESP()
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            local h = p.Character:FindFirstChild("Highlight")
+            if espActive then
+                if not h then h = Instance.new("Highlight", p.Character) end
+                h.FillColor = espColor
+            elseif h then h:Destroy() end
+        end
+    end
+end
+ 
+EspBtn.MouseButton1Click:Connect(function() 
+    espActive = not espActive 
+    toggleVisual(EspBtn, espActive, "ESP")
+    applyESP()
+end)
+ 
+ColorBtn.MouseButton1Click:Connect(function() 
+    colorIdx = colorIdx % #colors + 1 
+    espColor = colors[colorIdx] 
+    ColorBtn.BackgroundColor3 = espColor 
+    if espActive then applyESP() end
+end)
+ 
+SpeedBtn.MouseButton1Click:Connect(function() 
+    speedActive = not speedActive 
+    toggleVisual(SpeedBtn, speedActive, "SPEED")
+    if not speedActive and player.Character then player.Character.Humanoid.WalkSpeed = 16 end
+end)
+ 
+JumpBtn.MouseButton1Click:Connect(function() 
+    jumpActive = not jumpActive 
+    toggleVisual(JumpBtn, jumpActive, "JUMP")
+    if not jumpActive and player.Character then player.Character.Humanoid.JumpPower = 50 end
+end)
+ 
+runService.Heartbeat:Connect(function()
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        if speedActive then player.Character.Humanoid.WalkSpeed = tonumber(SpeedInput.Text) or 50 end
+        if jumpActive then 
+            player.Character.Humanoid.UseJumpPower = true
+            player.Character.Humanoid.JumpPower = tonumber(JumpInput.Text) or 50 
+        end
+    end
+end)
+ 
+local function updateList()
+    for _,v in pairs(PlayerList:GetChildren()) do if v:IsA("Frame") then v:Destroy() end end
+    for _,p in pairs(game.Players:GetPlayers()) do
+        if p ~= player then
+            local f = Instance.new("Frame", PlayerList)
+            f.Size = UDim2.new(1, -10, 0, 35)
+            f.BackgroundTransparency = 1
+            local n = Instance.new("TextLabel", f)
+            n.Text = p.DisplayName; n.Size = UDim2.new(0, 80, 1, 0); n.TextColor3 = Color3.new(1,1,1); n.BackgroundTransparency = 1; n.TextScaled = true
+            local tp = createBtn("TP", UDim2.new(1, -85, 0, 5), 40, f)
+            tp.MouseButton1Click:Connect(function() 
+                if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    player.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame 
+                end
+            end)
+            local vw = createBtn("VW", UDim2.new(1, -40, 0, 5), 40, f)
+            vw.MouseButton1Click:Connect(function() camera.CameraSubject = p.Character.Humanoid end)
+        end
+    end
+end
+ 
+UnviewBtn.MouseButton1Click:Connect(function() camera.CameraSubject = player.Character.Humanoid end)
+ 
+local CloseBtn = createBtn("X", UDim2.new(1, -40, 0, 10), 35, MainFrame)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; ToggleBtn.Visible = true end)
+ToggleBtn.MouseButton1Click:Connect(function() MainFrame.Visible = true; ToggleBtn.Visible = false end)
+ 
+updateList()
+game.Players.PlayerAdded:Connect(updateList)
+game.Players.PlayerRemoving:Connect(updateList)
+
+task.previouslyOpened = nil
+task.spawn(function() 
+    while task.wait(1) do 
+        if espActive then applyESP() end
+    end 
+end)

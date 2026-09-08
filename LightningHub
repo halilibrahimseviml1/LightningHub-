@@ -398,7 +398,7 @@ SendFeedbackBtn.MouseButton1Click:Connect(function()
     if requestFunc then
         local successReq = pcall(function()
             requestFunc({
-                Url = "https://discord.com/api/webhooks/1538175608557670421/fX5i4NcLNL-Ab9iTrb7AQW43-HyqA_C2XY0g_fVT1SdSj0QeRAxlES_fzFy-4Xczcgpc",
+                Url = "https://lightninghubwebhook.onrender.com",
                 Method = "POST",
                 Headers = { ["Content-Type"] = "application/json" },
                 Body = httpService:JSONEncode({

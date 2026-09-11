@@ -1,5 +1,3 @@
--- [[ LIGHTNING HUB V10 - ALL-IN-ONE EDITION ]] --
-
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local runService = game:GetService("RunService")
@@ -8,7 +6,6 @@ local userInput = game:GetService("UserInputService")
 local market = game:GetService("MarketplaceService")
 local httpService = game:GetService("HttpService")
 
--- Clean up old version
 if coreGui:FindFirstChild("LightningHub") then coreGui.LightningHub:Destroy() end
 if coreGui:FindFirstChild("LightningKey") then coreGui.LightningKey:Destroy() end
 
@@ -21,7 +18,7 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LightningHub"
 ScreenGui.Parent = coreGui
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = false -- Disabled until key is entered
+ScreenGui.Enabled = false 
 
 local flying, noclip, espActive = false, false, false
 local flySpeed = 70 
@@ -30,7 +27,6 @@ local colors = {Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 0), Color3.f
 local colorIdx = 1
 local currentThemeColor = Color3.fromRGB(255, 255, 0)
 
--- [[ 🔑 0. KEY / LINK SYSTEM ]] --
 local LinkToCopy = "https://www.instagram.com/muhammet_erenkyr?stkn=dWdjOW1jajVteWFo&utm_source=qr"
 
 local KeyFrame = Instance.new("Frame", KeyGui)
@@ -90,7 +86,6 @@ EnterBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- [[ 🔔 1. NOTIFICATION SYSTEM ]] --
 local function showFeedbackNotify(title, message)
     local NotifyFrame = Instance.new("Frame")
     local NotifyCorner = Instance.new("UICorner")
@@ -147,7 +142,6 @@ local function showFeedbackNotify(title, message)
     end)
 end
 
--- [[ 🏠 2. MAIN PANEL AND UI ]] --
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 400, 0, 420)
 MainFrame.Position = UDim2.new(0.5, -200, 0.3, 0)
@@ -158,7 +152,6 @@ MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
 
--- [ FOOTER TEXT ] --
 local PreparedText = Instance.new("TextLabel", MainFrame)
 PreparedText.Size = UDim2.new(1, 0, 0, 20)
 PreparedText.Position = UDim2.new(0, 0, 1, -20)
@@ -169,7 +162,6 @@ PreparedText.TextSize = 10
 PreparedText.BackgroundTransparency = 1
 PreparedText.ZIndex = 0
 
--- [ TITLE AND LIGHTNING ] --
 local Title = Instance.new("TextLabel", MainFrame)
 Title.Size = UDim2.new(1, 0, 0, 55)
 Title.Text = "⚡ LIGHTNING HUB V10"
@@ -179,7 +171,6 @@ Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
 Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 15)
 
--- [ SMALL OPEN BUTTON ] --
 local ToggleBtn = Instance.new("TextButton", ScreenGui)
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
 ToggleBtn.Position = UDim2.new(0, 15, 0.5, -25)
@@ -195,14 +186,12 @@ local ToggleStroke = Instance.new("UIStroke", ToggleBtn)
 ToggleStroke.Color = currentThemeColor
 ToggleStroke.Thickness = 2
 
--- [ LEFT MENU ] --
 local SideBar = Instance.new("Frame", MainFrame)
 SideBar.Size = UDim2.new(0, 60, 1, -65)
 SideBar.Position = UDim2.new(0, 0, 0, 55)
 SideBar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Instance.new("UICorner", SideBar).CornerRadius = UDim.new(0, 10)
 
--- [ TAB CONTAINERS ] --
 local MainTab = Instance.new("ScrollingFrame", MainFrame)
 MainTab.Size = UDim2.new(1, -70, 1, -75)
 MainTab.Position = UDim2.new(0, 65, 0, 65)
@@ -232,7 +221,6 @@ SettingsTab.BorderSizePixel = 0
 SettingsTab.Visible = false
 SettingsTab.CanvasSize = UDim2.new(0, 0, 1.5, 0)
 
--- [ MENU BUTTONS FUNCTION ] --
 local function createMenuBtn(text, pos, parent)
     local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(0, 40, 0, 40)
@@ -262,7 +250,6 @@ CheatsBtn.MouseButton1Click:Connect(function() switchTab(CheatsTab) end)
 FeedbackBtn.MouseButton1Click:Connect(function() switchTab(FeedbackTab) end)
 SettingsBtn.MouseButton1Click:Connect(function() switchTab(SettingsTab) end)
 
--- [ BUTTON TEMPLATE ] --
 local function createBtn(text, pos, sizeX, parent)
     local btn = Instance.new("TextButton", parent)
     btn.Text = text
@@ -275,7 +262,6 @@ local function createBtn(text, pos, sizeX, parent)
     return btn
 end
 
--- [ 🏠 MAIN TAB CONTENT ] --
 local pfp = Instance.new("ImageLabel", MainTab)
 pfp.Size = UDim2.new(0, 60, 0, 60)
 pfp.Position = UDim2.new(0, 10, 0, 10)
@@ -317,7 +303,6 @@ PlayerList.CanvasSize = UDim2.new(0,0,5,0)
 local listLayout = Instance.new("UIListLayout", PlayerList)
 listLayout.Padding = UDim.new(0, 5)
 
--- [ ⚡ CHEATS TAB CONTENT ] --
 local FlyBtn = createBtn("FLY: OFF", UDim2.new(0, 10, 0, 10), 200, CheatsTab)
 local NoclipBtn = createBtn("NOCLIP: OFF", UDim2.new(0, 10, 0, 55), 200, CheatsTab)
 local EspBtn = createBtn("ESP: OFF", UDim2.new(0, 10, 0, 100), 150, CheatsTab)
@@ -344,7 +329,6 @@ JumpInput.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
 JumpInput.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", JumpInput)
 
--- [[ 📩 FEEDBACK TAB CONTENT ]] --
 local creatorPfp = Instance.new("ImageLabel", FeedbackTab)
 creatorPfp.Size = UDim2.new(0, 80, 0, 80)
 creatorPfp.Position = UDim2.new(0.5, -40, 0, 10)
@@ -408,7 +392,6 @@ SendFeedbackBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- [ ⚙️ SETTINGS TAB CONTENT ] --
 local SettingsTitle = Instance.new("TextLabel", SettingsTab)
 SettingsTitle.Text = "Change Panel Color"
 SettingsTitle.Position = UDim2.new(0, 10, 0, 10)
@@ -435,10 +418,10 @@ local function createColorThemeBtn(color, pos)
     return btn
 end
 
-createColorThemeBtn(Color3.fromRGB(255, 255, 0), UDim2.new(0, 10, 0, 40))   -- Yellow
-createColorThemeBtn(Color3.fromRGB(255, 50, 50), UDim2.new(0, 60, 0, 40))    -- Red
-createColorThemeBtn(Color3.fromRGB(50, 150, 255), UDim2.new(0, 110, 0, 40))  -- Blue
-createColorThemeBtn(Color3.fromRGB(150, 50, 255), UDim2.new(0, 160, 0, 40))  -- Purple
+createColorThemeBtn(Color3.fromRGB(255, 255, 0), UDim2.new(0, 10, 0, 40))
+createColorThemeBtn(Color3.fromRGB(255, 50, 50), UDim2.new(0, 60, 0, 40))
+createColorThemeBtn(Color3.fromRGB(50, 150, 255), UDim2.new(0, 110, 0, 40))
+createColorThemeBtn(Color3.fromRGB(150, 50, 255), UDim2.new(0, 160, 0, 40))
 
 local AdminLabel = Instance.new("TextLabel", SettingsTab)
 AdminLabel.Text = "Admin script"
@@ -455,7 +438,7 @@ IYBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
 IYBtn.MouseButton1Click:Connect(function()
     showFeedbackNotify("SCRIPT EXECUTED", "SOMNANGKH122's Script Hub is loading...")
     task.spawn(function()
-        local iyCode = [=[
+        local iyCode = [==[
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "SOMNANGKH122's Script Hub",
@@ -499,7 +482,7 @@ CreditsTab:CreateButton({ Name = "Join SOMNANGKH122's Discord", Callback = funct
 getgenv().IY_LOADED = true
 InfiniteYield:Init()
 print("SOMNANGKH122's Script Hub loaded successfully!")
-]=]
+]==]
         local func = loadstring(iyCode)
         if func then func() end
     end)
@@ -537,7 +520,6 @@ CopyNewAdminBtn.MouseButton1Click:Connect(function()
     showFeedbackNotify("SUCCESS", "Minnetarım⚡️")
 end)
 
--- [[ 🛠️ 3. RESIZE SYSTEM ]] --
 local ResizeHandle = Instance.new("TextButton")
 ResizeHandle.Name = "ResizeHandle"
 ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
@@ -576,8 +558,6 @@ userInput.InputEnded:Connect(function(input)
         resizing = false
     end
 end)
-
--- [[ 🧠 4. CHEAT LOGIC AND CONTROLS ]] --
 
 local function toggleVisual(btn, state, text)
     btn.Text = text .. (state and ": ON" or ": OFF")
